@@ -87,12 +87,20 @@ export default function TradingPro() {
   const [error, setError] = useState(null);
   const [autoMode, setAutoMode] = useState(false);
   const [autoInterval, setAutoInterval] = useState(30);
-  const [tradeLog, setTradeLog] = useState([]);
+  const [tradeLog, setTradeLog] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("phoenix_log") || "[]"); } catch { return []; }
+  });
   const [tab, setTab] = useState("dashboard");
   const [lastUpdate, setLastUpdate] = useState(null);
-  const [winStats, setWinStats] = useState({ total: 0, win: 0, loss: 0 });
+  const [winStats, setWinStats] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("phoenix_stats") || '{"total":0,"win":0,"loss":0}'); } catch { return { total: 0, win: 0, loss: 0 }; }
+  });
   const autoRef = useRef(null);
   const priceRef = useRef(0);
+
+  // localStorage 저장
+  useEffect(() => { localStorage.setItem("phoenix_log", JSON.stringify(tradeLog)); }, [tradeLog]);
+  useEffect(() => { localStorage.setItem("phoenix_stats", JSON.stringify(winStats)); }, [winStats]);
 
   // ── CORS 우회 — CoinGecko API (무료, CORS 허용) ──
   const fetchKlines = async (interval) => {
